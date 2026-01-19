@@ -111,8 +111,8 @@ Architecture:     Multi-tenant SaaS, Service Layer, RBAC
 
 ## 📫 Contact
 
-- **Email:** [your-email](anascojas@gmail.com)
-- **LinkedIn:** [your-linkedin](https://www.linkedin.com/in/jasiel-emro-anasco-047a31357/)
+- **Email:** [anascojas@gmail.com](mailto:anascojas@gmail.com)
+- **LinkedIn:** [Jasiel Emro Anasco](https://www.linkedin.com/in/jasiel-emro-anasco-047a31357/)
 - **GitHub:** [@jasanasc0](https://github.com/jasanasc0)
 
 ---
