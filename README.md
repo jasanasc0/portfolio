@@ -24,7 +24,7 @@ I'm a full-stack developer from the Philippines with experience building product
 
 A **multi-tenant SaaS Point-of-Sale platform** for restaurants with QR-based ordering and real-time kitchen display.
 
-🔗 **Live Demo:** [ares-pos.vercel.app/](https://ares-pos.vercel.app/)
+🔗 **Live Demo:** [ares-pos.vercel.app](https://ares-pos.vercel.app)
 
 ### Technical Highlights
 
