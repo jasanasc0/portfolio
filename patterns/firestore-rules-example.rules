@@ -1,0 +1,132 @@
+/**
+ * Firestore Security Rules Example
+ * 
+ * These rules implement Role-Based Access Control (RBAC):
+ * - Super Admin: Full access to everything
+ * - Restaurant Admin: Access to their restaurant's data only
+ * - Kitchen Staff: Limited access (view/update orders)
+ * - Customer: Read their own orders only
+ * 
+ * Key Patterns:
+ * - Helper functions for reusable checks
+ * - Claims-first authorization (fast)
+ * - Database fallback (for users without synced claims)
+ * - Field-level restrictions on updates
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // HELPER FUNCTIONS
+    // =========================================================================
+    
+    // Is user logged in?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Is user a platform super admin?
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.superAdmin == true ||
+        exists(/databases/$(database)/documents/platform_admins/$(request.auth.uid))
+      );
+    }
+    
+    // Is user an admin for this specific restaurant?
+    // Uses claims-first approach for performance
+    function isRestaurantAdmin(restaurantId) {
+      return isAuthenticated() && (
+        // FAST: Check auth token claims (0 database reads)
+        (request.auth.token.restaurantAdmin == true &&
+         request.auth.token.restaurantId == restaurantId) ||
+        // FALLBACK: Check database (1-2 reads, for users without claims)
+        (exists(/databases/$(database)/documents/admin_users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/admin_users/$(request.auth.uid)).data.restaurantId == restaurantId)
+      );
+    }
+    
+    // Is user kitchen staff for this restaurant?
+    function hasKitchenAccess(restaurantId) {
+      return isAuthenticated() && 
+             request.auth.token.kitchenAccess == restaurantId;
+    }
+    
+    // Is this user the owner of this data?
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // =========================================================================
+    // ORDERS COLLECTION - Most Critical!
+    // =========================================================================
+    
+    match /orders/{orderId} {
+      
+      // CREATE: Blocked! Must use Cloud Function
+      // This prevents price manipulation attacks
+      allow create: if false;
+      
+      // READ: Scoped access
+      allow read: if 
+        isSuperAdmin() ||
+        isRestaurantAdmin(resource.data.restaurantId) ||
+        hasKitchenAccess(resource.data.restaurantId) ||
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      
+      // UPDATE: Role-based with field restrictions
+      allow update: if
+        isSuperAdmin() ||
+        isRestaurantAdmin(resource.data.restaurantId) ||
+        // Kitchen staff can update, but NOT total/restaurantId/userId
+        (hasKitchenAccess(resource.data.restaurantId) && 
+         !request.resource.data.diff(resource.data).affectedKeys()
+           .hasAny(['total', 'restaurantId', 'userId'])) ||
+        // Customers can only update assistance flags
+        (isAuthenticated() && 
+         resource.data.userId == request.auth.uid &&
+         !request.resource.data.diff(resource.data).affectedKeys()
+           .hasAny(['status', 'total', 'items', 'restaurantId']));
+      
+      // DELETE: Admins only
+      allow delete: if isSuperAdmin() || isRestaurantAdmin(resource.data.restaurantId);
+    }
+    
+    // =========================================================================
+    // MENU ITEMS
+    // =========================================================================
+    
+    match /menu_items/{itemId} {
+      // Public read (customers need to see the menu)
+      allow read: if true;
+      
+      // Write: Admins only
+      allow create: if isRestaurantAdmin(request.resource.data.restaurantId);
+      allow update, delete: if isRestaurantAdmin(resource.data.restaurantId);
+    }
+    
+    // =========================================================================
+    // RATE LIMITS - System Only
+    // =========================================================================
+    
+    match /rate_limits/{userId} {
+      // Completely managed by Cloud Functions
+      allow read, write: if false;
+    }
+  }
+}
+
+// ============================================================================
+// SECURITY PRINCIPLE: Defense in Depth
+// ============================================================================
+// 
+// Layer 1: Frontend validation (nice UX, but not security)
+// Layer 2: Cloud Functions (server-side validation)
+// Layer 3: Security Rules (last line of defense)
+// 
+// Even if an attacker bypasses the frontend AND somehow calls Firestore
+// directly, these rules will stop unauthorized access.
+// 
+// ============================================================================
