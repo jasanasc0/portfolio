@@ -30,9 +30,7 @@ I'm a full-stack developer from the Philippines with experience building product
 
 🔗 **Live Demo:** [ares-pos.vercel.app](https://ares-pos.vercel.app)
 
-<video src="./docs/CoffeeOS.mp4" controls="controls" style="max-width: 100%;">
-  Your browser does not support the video tag.
-</video>
+> 📹 **Video Demo:** [Click here to watch the CoffeeOS Preview](./docs/CoffeeOS.mp4)
 
 CoffeeOS is not just an ordering app; it is a **comprehensive SaaS infrastructure** designed to serve thousands of concurrent restaurant tenants. It solves the critical challenge of high-frequency real-time updates (orders, status changes) while keeping cloud infrastructure costs predictably low.
 
