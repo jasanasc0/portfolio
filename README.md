@@ -1,358 +1,336 @@
-# 🚀 Jasiel Añasco — Portfolio Code Samples
+<p align="center">
+  <img src="public/COFFEE_OS.png" alt="CoffeeOS Logo" width="160" />
+</p>
 
-> **Full-Stack Engineer** specializing in TypeScript, React, and Real-Time SaaS Architecture
+<h1 align="center">CoffeeOS</h1>
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
-[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+<p align="center">
+  <strong>Ordering Infrastructure for Restaurants, Coffee Shops, and Food Stalls.</strong><br/>
+  CoffeeOS is the customer-to-kitchen layer for QR ordering, real-time kitchen displays, and live operational visibility. Not a POS replacement. It works alongside existing POS systems by handling the ordering flow they usually do not cover well.
+</p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19"/>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase"/>
+  <img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="TailwindCSS"/>
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
+</p>
 
-## 👋 About Me
-
-I'm a full-stack developer from the Philippines with experience building production-grade SaaS applications. I focus on:
-
-- **Real-time systems** — Firestore subscriptions, WebSockets
-- **Clean architecture** — Service layers, separation of concerns
-- **Security-first design** — Server-side validation, RBAC, defense in depth
-- **Cost optimization** — Efficient database patterns that scale
-
----
-
-## 🏆 Featured Project: CoffeeOS
-
-**A high-scale, multi-tenant Point of Sale (POS) & Ordering System built for performance, security, and elastic horizontal scalability.**
-
-![Tech Stack](https://img.shields.io/badge/Stack-React_19_%7C_TypeScript_%7C_Firebase-blue?style=flat-square)
-![Architecture](https://img.shields.io/badge/Architecture-Serverless_Event_Driven-purple?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Production_Ready-green?style=flat-square)
-
-🔗 **Live Demo:** [ares-pos.vercel.app](https://ares-pos.vercel.app)
-
-https://github.com/user-attachments/assets/b311dacf-e5be-48dd-afd3-d2c80b992b08
-
-CoffeeOS is not just an ordering app; it is a **comprehensive SaaS infrastructure** designed to serve thousands of concurrent restaurant tenants. It solves the critical challenge of high-frequency real-time updates (orders, status changes) while keeping cloud infrastructure costs predictably low.
+<p align="center">
+  <img src="https://img.shields.io/badge/Architecture-Serverless_Event_Driven-8B5CF6?style=flat-square" alt="Architecture"/>
+  <img src="https://img.shields.io/badge/Codebase-33,000+_Lines-22C55E?style=flat-square" alt="Codebase Size"/>
+  <img src="https://img.shields.io/badge/Cloud_Functions-3,500+_Lines-F59E0B?style=flat-square" alt="Cloud Functions"/>
+  <img src="https://img.shields.io/badge/Security_Rules-470+_Lines-EF4444?style=flat-square" alt="Security Rules"/>
+  <img src="https://img.shields.io/badge/Status-Production_Ready-22C55E?style=flat-square" alt="Status"/>
+</p>
 
 ---
 
-## 🏗️ Technical Architecture & Scalability
+## The Vision
 
-This project demonstrates **optimizations** regarding cost, read/write ratios, and security:
+> "Walk into a restaurant, coffee shop, or food stall. Scan a code. Order with less friction. The kitchen receives it instantly. The venue runs faster, the customer waits less, and the owner sees everything in real time."
 
-### System Architecture
+CoffeeOS is not a POS. It is not just a QR menu. It is customer-facing ordering infrastructure: the operational layer between the customer's phone and the kitchen's screen.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              FRONTEND (React + TypeScript)                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ Customer App │  │ Kitchen KDS  │  │ Admin Panel  │  │ SaaS Dashboard│   │
-│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘    │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                         ┌────────────┴────────────┐
-                         │    Service Layer        │
-                         │ (AuthService, OrderService, etc.)
-                         └────────────┬────────────┘
-                                      │
-        ┌─────────────────────────────┼─────────────────────────────┐
-        │                             │                             │
-        ▼                             ▼                             ▼
-┌───────────────┐           ┌───────────────┐           ┌───────────────┐
-│ Firebase Auth │           │ Cloud Functions│           │   Firestore   │
-│ (Anonymous +  │           │ (Secure order  │           │  (Real-time   │
-│  Admin login) │           │  placement)    │           │   database)   │
-└───────────────┘           └───────────────┘           └───────────────┘
-```
+Existing POS systems handle receipts, taxes, compliance, cash drawers, and back-office reporting. CoffeeOS handles the front-of-house ordering flow:
 
-### 1. The "Public Status Broadcaster" Pattern
+- scan
+- browse
+- order
+- pay or confirm payment
+- route demand to kitchen
+- track fulfillment in real time
 
-- **Problem**: Broadcasting real-time table availability to 1,000+ concurrent customers usually generates 1,000+ Firestore reads *per status change*, leading to massive bills.
-- **Solution**: Architected a background trigger that aggregates table status into a single public document. Clients listen to this *single* lightweight document instead of querying the entire orders collection.
-- **Result**: Reduced Firebase read costs by **~99%** at scale.
-
-### 2. Infrastructure Abstraction Layer
-
-- **Services Pattern**: All business logic (Orders, Subscriptions, Auth) is decoupled from UI components via the `services/` layer (e.g., `OrderService.ts`, `SubscriptionService.ts`).
-- **Benefit**: Keeps React components pure and allows for easy swapping of backend providers (e.g., migrating to Supabase or PostgreSQL) without refactoring UI code.
-
-```typescript
-// Components never touch Firebase directly
-await OrderService.place({ restaurantId, items, tableNum });
-await OrderService.updateStatus(orderId, 'preparing');
-await OrderService.confirmPayment(orderId);
-```
-
-### 3. Multi-Tenant Security (RBAC)
-
-- **Data Isolation**: Strict Firestore Security Rules (`firestore.rules`) ensure tenants (Restaurants) cannot access each other's data.
-- **Role-Based Access**: Granular permissions for:
-    - **Level 0**: Anonymous Customer (Public Read/Write Own)
-    - **Level 1**: Kitchen Staff (Order Management)
-    - **Level 2**: Restaurant Admin (Menu & Analytics)
-    - **Level 3**: Super Admin (Platform Oversight)
-
-### 4. Claims-Based Authorization
-
-- **Fast Path**: Custom claims checked first (0 Firestore reads)
-- **Fallback**: Database lookup for legacy users (1 read)
-- **Result**: Optimal performance while maintaining backwards compatibility
-
-```typescript
-// Fast path: check claims (0 reads)
-if (claims.restaurantAdmin === restaurantId) return true;
-
-// Fallback: check database (1 read)  
-const adminDoc = await getDoc(doc(db, 'admin_users', uid));
-```
+Built for the Philippine F&B market first, across restaurants, coffee shops, and food stalls, with a strong wedge in queue-heavy environments such as food courts, food parks, and fast-casual venues.
 
 ---
 
-## 🛠️ Technology Stack
+## What It Is
 
-| Domain | Technologies Used |
-| :--- | :--- |
-| **Frontend Core** | **React 19**, **TypeScript**, Vite |
-| **State & Data** | **Firebase SDK v9** (Modular), React Context API |
-| **Styling / UI** | **TailwindCSS**, Framer Motion (Animations), Lucide React |
-| **Backend / FaaS** | **Firebase Cloud Functions** (Node.js, 3300+ lines) |
-| **Database** | **Cloud Firestore** (NoSQL), Storage |
-| **Quality Assurance** | TypeScript Strict Mode, ESLint |
+CoffeeOS is a multi-tenant ordering infrastructure platform that works alongside existing POS systems.
 
----
+| For the Customer | For the Kitchen | For the Owner | For the Platform |
+|:---|:---|:---|:---|
+| Zero-download QR ordering | Real-time Kitchen Display System | Menu management and analytics | Multi-tenant oversight |
+| Session persistence | Audio alerts for new orders | White-label branding | Subscription and billing engine |
+| Split bill support | Smart order queuing | Revenue dashboards | Partner and reseller program |
+| Table-aware ordering | Thermal ticket printing | Staff access control | Commission tracking |
 
-## 🔥 Key Features
+CoffeeOS is useful across restaurants, coffee shops, and food stalls, and especially strong where:
 
-### 💰 Pay-to-Release Workflow
-
-**Problem**: Customers order, food takes time to prepare, they walk out without paying.
-
-**Solution**: Orders stay in "Awaiting Payment" until staff confirms payment at the counter. Only then does the kitchen start preparing.
-
-```
-Customer Orders → Shows "Go to Counter" → Staff Clicks "Confirm Paid" → Kitchen Starts
-```
-
-### 🧾 Smart Split Bills
-
-Multiple people at the same table can order independently. Each gets their own ticket, their own payment, no confusion.
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│ TABLE 5 — 3 orders • Total: ₱370 • 1 unpaid                   │
-├────────────────────────────────────────────────────────────────┤
-│ #137 Latte ₱150   │ #138 Croissant ₱120 │ #139 ₱100           │
-│ [PAID ✓]          │ [PAID ✓]            │ [UNPAID]            │
-└────────────────────────────────────────────────────────────────┘
-```
-
-### 🔄 Session Persistence
-
-Customer closes browser? No problem. When they return, their order is still there. Add more items to an existing order seamlessly.
-
-### 📊 Real-Time Everything
-
-- Orders appear on KDS in <100ms
-- Table availability updates instantly
-- Status changes push to all devices
-- No polling, no refresh needed
+- customers are physically lining up to order
+- venues use shared seating or pickup-heavy service
+- operators want throughput gains without replacing their existing POS
+- owners want a direct customer-to-kitchen ordering flow
+- malls, food parks, or venue operators can drive multi-tenant adoption at scale
 
 ---
 
-## 🔐 Role-Based Access Control
+## Core Pillars
 
-Every staff member gets exactly what they need:
+### 1. Serverless First
+Zero servers to manage. Firebase Cloud Functions scale to zero when idle and scale up under load.
 
-| Role | Access Level | Capabilities |
-| :--- | :--- | :--- |
-| 👤 **Customer** | Level 0 | Order placement, order status, feedback |
-| 👨‍🍳 **Kitchen** | Level 1 | KDS view, order management, ticket printing |
-| 🏪 **Admin** | Level 2 | Menu management, analytics, configuration |
-| 👑 **Super Admin** | Level 3 | Platform oversight, subscription management |
+### 2. Real-Time Native
+Firestore listeners push order updates to the kitchen without polling or custom WebSocket infrastructure.
+
+### 3. Beautifully Boring
+React, TypeScript, Firebase, Tailwind. Stability over novelty.
+
+### 4. Zero Trust Security
+Client checks are for UX. Server checks are for security. Prices are validated server-side. Rules, auth claims, and rate limits enforce tenant boundaries.
+
+### 5. Operationally Lean
+The architecture is optimized for low idle cost and efficient high-volume reads, including the public status broadcaster pattern.
 
 ---
 
-## 💰 Subscription Tiers & Business Model
+## Key Features
 
-### Pricing Structure
+### Pay-to-Release Workflow
+Customers order, staff verifies payment, then the kitchen starts cooking. This is especially useful in pickup-heavy workflows where walkouts, payment ambiguity, or queue congestion are real operational problems.
 
-| Tier | Monthly Price | Order Limit | Trial | Features |
-| :--- | :--- | :--- | :--- | :--- |
-| ☕ **Barista** | ₱499 | 500/month | 14-day free | QR Ordering, KDS, Basic Analytics |
-| 🔥 **Roaster** | ₱999 | 3,000/month | None | + Loyalty Program, Priority Support |
-| 👑 **Tycoon** | ₱2000 | Unlimited | None | + Multi-Location, Custom Branding |
+### Smart Split Bills
+Multiple people at the same table can order independently without forcing one shared cart or one payer.
+
+### Session Persistence
+Customers can leave and return to the ordering flow without losing their in-progress order context.
+
+### White-Label Storefront
+Each restaurant or stall can expose its own brand, theme, and public-facing experience.
+
+### Loyalty and Rewards
+Built-in rewards and redemption flows for repeat customers.
+
+### Concierge Onboarding
+A guided setup path for venue owners who want menu digitization, QR generation, and launch support handled for them.
+
+### Real-Time Analytics
+Revenue, volume, peak-hour patterns, and top-selling items from live operational data.
+
+### Distribution Partner Program
+Partner and reseller support for multi-tenant rollout, attribution, commissions, and payout workflows.
+
+### Multi-Tenant Security
+Four-tier access control across customer, kitchen, admin, and super admin roles.
+
+### ROI Calculator
+A built-in sales tool for showing labor and throughput impact to prospective customers.
+
+---
+
+## Architecture
+
+```
+Client apps
+  - Customer ordering
+  - Kitchen display
+  - Admin dashboard
+  - Partner portal
+
+Frontend service layer
+  - OrderService
+  - MenuService
+  - AuthService
+  - RestaurantService
+  - SubscriptionService
+  - PartnerService
+  - LoyaltyService
+  - PaymentService
+  - SuperAdminService
+
+Backend
+  - Firestore
+  - Cloud Functions
+  - Security rules
+  - Storage rules
+```
+
+Key backend domains:
+
+- Orders: `functions/src/orders`
+- Payments: `functions/src/payments`
+- Restaurants and occupancy: `functions/src/restaurants`
+- Auth and claims: `functions/src/auth`
+- Shared security and operational utilities: `functions/src/shared`
+
+Core data collections include:
+
+- `restaurants`
+- `coffee_orders`
+- `menu_items`
+- `admin_users`
+- `partners`
+- `partner_commissions`
+- `partner_payouts`
+- `subscriptions`
+- `audit_logs`
+- `payment_idempotency`
+
+---
+
+## Tech Stack
+
+| Domain | Technologies |
+|:---|:---|
+| Frontend Core | React 19, TypeScript, Vite |
+| Routing | React Router DOM v7 |
+| State Management | React Context plus custom hooks |
+| Styling | TailwindCSS, CVA, clsx, tailwind-merge |
+| Animation | Framer Motion |
+| UI Primitives | Radix UI |
+| Charts | Recharts |
+| Database | Cloud Firestore |
+| Authentication | Firebase Auth |
+| Backend | Firebase Cloud Functions v2 |
+| Payments | PayMongo |
+| Validation | Zod |
+| Testing | Vitest, Testing Library, jsdom |
+| Hosting | Vercel plus Firebase |
+
+---
+
+## Business Model
+
+### Subscription Tiers
+
+| Tier | Monthly | Order Limit | Highlights |
+|:---|:---|:---|:---|
+| Barista | PHP 499 | 500 per month | QR ordering, KDS, basic analytics |
+| Roaster | PHP 999 | 3,000 per month | Automated payments, priority support |
+| Tycoon | PHP 2,000 | Unlimited | White-label branding, multi-location |
 
 ### Unit Economics
 
-| Tier | Infrastructure Cost | Gross Margin |
-| :--- | :--- | :--- |
-| **Barista** | ~₱12.50/month | **97.5%** |
-| **Roaster** | ~₱30.00/month | **97.0%** |
-| **Tycoon** | ~₱100.00/month | **95.0%** |
-
-*Infrastructure costs include Firestore reads/writes, Cloud Functions invocations, and hosting.*
-
-### Revenue Projections (at Scale)
-
-| Scale | Paying Restaurants | MRR | Annual Run Rate | Net Margin |
-| :--- | :--- | :--- | :--- | :--- |
-| **Seed** | 100 | ₱75,000 | ₱900K | 94% |
-| **Growth** | 1,000 | ₱800,000 | ₱9.6M | 94% |
-| **Scale** | 5,000 | ₱4,250,000 | ₱51M | 92% |
-| **Unicorn** | 10,000 | ₱9,000,000 (~$161k USD) | ₱108M (~$1.9M USD) | 91% |
+| Tier | Estimated Infrastructure Cost per Month | Gross Margin |
+|:---|:---|:---|
+| Barista | ~PHP 12.50 | 97.5% |
+| Roaster | ~PHP 30.00 | 97.0% |
+| Tycoon | ~PHP 100.00 | 95.0% |
 
 ---
 
-## 🤝 Distribution Partner Program
+## What CoffeeOS Is Not
 
-A comprehensive affiliate/reseller system enabling third parties to sell CoffeeOS subscriptions and earn recurring commissions.
+CoffeeOS is not a Point of Sale system.
 
-### Multi-Dashboard Architecture
+It does not aim to be the primary system for:
 
-| Dashboard | User | Purpose |
-| :--- | :--- | :--- |
-| **Customer App** | End Customers | QR ordering, order status, feedback |
-| **KDS** | Kitchen Staff | Real-time order management |
-| **Admin Dashboard** | Restaurant Owners | Menu, analytics, configuration |
-| **Partner Portal** | Distribution Partners | Commission tracking, payouts, referral management |
-| **Super Admin** | Platform Owner | All restaurants, subscriptions, partner management |
+- BIR-accredited receipts
+- tax computation
+- cash drawer workflows
+- raw inventory tracking
+- shift-end readings
+- broad back-office accounting
 
-### Partner Portal Features
+Those are already handled by established POS vendors.
 
-Distribution Partners get their own dedicated dashboard with:
+CoffeeOS handles the ordering layer those systems usually do not own well:
 
-- **Referral Tracking**: Unique referral codes/links for each partner
-- **Restaurant Directory**: List of all restaurants they've onboarded
-- **Commission Dashboard**: Real-time earnings from active subscriptions
-- **Payout Requests**: Request withdrawal when balance reaches minimum (₱500)
-- **Performance Analytics**: Conversion rates, churn tracking, growth trends
+- QR ordering from the customer's phone
+- real-time kitchen routing
+- customer order tracking
+- pay-to-release workflows
+- customer-initiated split bills
+- white-label storefronts
+- queue-aware ordering flows
 
-### Commission Structure
+A venue running CoffeeOS alongside its existing POS gets both compliance and customer experience. CoffeeOS handles how customers order. The POS handles the transaction record.
 
-| Event | Commission | Duration |
-| :--- | :--- | :--- |
-| **New Subscription** | 20% of first month | One-time |
-| **Recurring Revenue** | 10% of monthly subscription | Lifetime (while restaurant active) |
+---
 
-*Example: Partner refers a Roaster tier restaurant (₱999/month)*
-- Month 1: ₱200 (20%)
-- Months 2+: ₱100/month (10%) recurring
+## Strategic Vision
 
-### Firestore Data Model
+CoffeeOS is designed to scale through distribution, not only one restaurant at a time.
 
-```
-partners/
-  └── {partnerId}/
-        ├── companyName: "ABC Solutions"
-        ├── email: "partner@example.com"
-        ├── referralCode: "ABC2026"
-        ├── commissionRate: 0.10
-        ├── balance: 2500
-        └── restaurants: ["resto-1", "resto-2", ...]
+At the product level, CoffeeOS starts with restaurants, coffee shops, and food stalls that want a better front-of-house ordering flow without replacing their existing POS.
 
-partner_payouts/
-  └── {payoutId}/
-        ├── partnerId: "..."
-        ├── requestedAmount: 1000
-        ├── status: "pending" | "approved" | "rejected"
-        └── processedAt: timestamp
+At the distribution level, its white-label architecture, multi-tenant isolation, and partner commission system support venue-level rollout where mall operators, food park operators, or other venue managers can deploy CoffeeOS across multiple tenants under a unified brand.
+
+The thesis is simple:
+
+- existing POS systems remain the back-office system of record
+- CoffeeOS becomes the front-of-house ordering layer
+- individual merchants use CoffeeOS to modernize ordering without changing their system of record
+- venue operators use CoffeeOS to reduce queues, modernize ordering, and improve throughput across multiple stalls or branches
+
+The initial expansion wedge is the Philippine food court and food park environment, where shared seating, visible queues, and pickup-heavy workflows make digital ordering infrastructure especially valuable.
+
+---
+
+## Project Structure
+
+```text
+CoffeeOS/
+|-- src/            Frontend application
+|-- functions/      Firebase Cloud Functions
+|-- docs/           Architecture, strategy, and operational documents
+|-- Opus/           Semantic code graph tooling
+|-- public/         Static assets
+|-- firestore.rules Firestore security rules
+|-- storage.rules   Cloud Storage security rules
 ```
 
 ---
 
-## 📊 Capacity & Performance
+## Security Implementation
+
+| Protection | Implementation |
+|:---|:---|
+| Firestore Rules | Deny-by-default, multi-tenant policy enforcement |
+| Custom Claims | Role-aware access control |
+| Rate Limiting | Per-user and per-IP controls |
+| Price Validation | Server-side price recalculation |
+| Status Guards | Order state transition validation |
+| Payload Validation | Request size and schema enforcement |
+| Payment Security | Webhook verification and idempotency controls |
+| Audit Logging | Critical action tracking |
+
+---
+
+## Performance and Capacity
 
 | Metric | Specification |
-| :--- | :--- |
-| **Concurrent Restaurants** | 50,000+ (Firestore horizontal scaling) |
-| **Orders per Second** | 2,000+ (Firebase write limit: 10k/s) |
-| **Real-time Update Latency** | <100ms (Firestore listeners) |
-| **KDS DOM Performance** | 100+ active orders without jank |
+|:---|:---|
+| Real-time Latency | Sub-second Firestore listener updates |
+| Orders per Second | Designed for high-throughput serverless writes |
+| Cost Profile | Low idle cost, pay-per-use backend |
+| Frontend Build | Vite-based local development and optimized production build |
 
 ---
 
-## 🔒 Security Implementation
+## Documentation
 
-- **Firestore Rules**: 400+ lines of production-hardened security rules
-- **Rate Limiting**: Order spam prevention (10-second cooldown per user)
-- **Price Validation**: Server-side price verification prevents manipulation
-- **Status Transition Guards**: Only valid order status changes allowed
-- **IP-based Throttling**: 30 orders/hour per IP address
+This project includes extensive technical and strategic documentation, including:
 
----
-
-## 📁 Code Samples
-
-This repository contains **sanitized excerpts** demonstrating my coding patterns:
-
-### `/patterns`
-
-| File | What It Demonstrates |
-|------|---------------------|
-| `service-layer-pattern.ts` | Abstraction layer between UI and infrastructure |
-| `real-time-subscription.ts` | Firestore real-time listeners with cleanup |
-| `cloud-function-security.ts` | Server-side validation and rate limiting |
-| `multi-tenant-context.tsx` | React Context for tenant-scoped state |
-| `firestore-rules-example.rules` | RBAC security rules |
-
-### `/components`
-
-| File | What It Demonstrates |
-|------|---------------------|
-| `StatusScreen.tsx` | Real-time order status with sound/vibration |
-| `useAuth.ts` | Custom hook for authentication flow |
+- [docs/ARCHITECTURE_BLUEPRINT.md](./docs/ARCHITECTURE_BLUEPRINT.md)
+- [docs/CODEBASE_MANIFESTO.md](./docs/CODEBASE_MANIFESTO.md)
+- [docs/SECURITY_ARCHITECTURE.md](./docs/SECURITY_ARCHITECTURE.md)
+- [docs/TECH_STACK_DEEP_DIVE.md](./docs/TECH_STACK_DEEP_DIVE.md)
+- [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)
+- [docs/MALL_FOODCOURT_STRATEGY.md](./docs/MALL_FOODCOURT_STRATEGY.md)
+- [docs/PAYMENT_CUSTOMER_AUTOMATED.md](./docs/PAYMENT_CUSTOMER_AUTOMATED.md)
+- [docs/CONCIERGE_ARCHITECTURE.md](./docs/CONCIERGE_ARCHITECTURE.md)
+- [docs/CODE_GRAPH_ARCHITECTURE.md](./docs/CODE_GRAPH_ARCHITECTURE.md)
+- [docs/GROWTH_PLAYBOOK.md](./docs/GROWTH_PLAYBOOK.md)
 
 ---
 
-## 📚 Architecture Documentation
+## Custom Tooling: Code Graph
 
-| Document | What It Shows |
-|----------|--------------|
-| **[Architecture Blueprint](./docs/ARCHITECTURE_BLUEPRINT.md)** | Complete SaaS architecture patterns — reusable template for any project |
-| **[Table Occupancy Pattern](./docs/ARCHITECTURE_TABLE_OCCUPANCY.md)** | "Public Status Broadcaster" — how I reduced costs by 99% |
-| **[3-Layer Architecture](./docs/ARCHITECTURE.md)** | Service layer pattern, testing strategy, security features |
+CoffeeOS includes Opus, a semantic code graph for mapping relationships across components, services, Cloud Functions, and Firestore collection usage.
 
 ---
 
-## 📁 Project Structure
+## Author
 
-```
-CoffeeOS/
-├── src/
-│   ├── components/       # React UI components
-│   ├── services/         # Business logic abstraction layer
-│   ├── hooks/            # Custom React hooks
-│   ├── context/          # React context providers
-│   └── types/            # TypeScript definitions
-├── functions/
-│   └── src/index.ts      # Cloud Functions (3300+ lines)
-├── firestore.rules       # Security rules (400+ lines)
-└── docs/                 # Technical documentation
-```
+**Jasiel S. Anasco** - Full Stack Product Engineer
+
+CoffeeOS represents a solo-built codebase spanning frontend, backend, security, payments, and business tooling.
 
 ---
 
-## 🔧 Technical Skills
+## License
 
-```
-Languages:        TypeScript, JavaScript, Python, C/C++
-Frontend:         React, Next.js, TailwindCSS
-Backend:          Node.js, Firebase Cloud Functions, REST APIs
-Database:         Firestore (NoSQL), Real-time subscriptions
-Cloud:            Firebase, Vercel, Git, CI/CD
-Architecture:     Multi-tenant SaaS, Service Layer, RBAC
-```
-
----
-
-## 📫 Contact
-
-- **Email:** [anascojas@gmail.com](mailto:anascojas@gmail.com)
-- **LinkedIn:** [Jasiel Emro Anasco](https://www.linkedin.com/in/jasiel-emro-anasco-047a31357/)
-- **GitHub:** [@jasanasc0](https://github.com/jasanasc0)
-
----
-
-## 📄 License
-
-These code samples are provided for educational and portfolio purposes. The full CoffeeOS application is proprietary.
+Proprietary - All rights reserved.
